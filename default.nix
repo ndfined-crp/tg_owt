@@ -98,7 +98,7 @@ stdenv.mkDerivation {
     description = "Fork of Google's webrtc library for telegram-desktop";
     homepage = "https://github.com/desktop-app/tg_owt";
     license = lib.licenses.bsd3;
-    maintainers = with lib.maintainers; [oxalica kaeeraa];
+    maintainers = with lib.maintainers; [oxalica];
     platforms = lib.platforms.linux ++ lib.platforms.darwin;
   };
 }
