@@ -19,8 +19,10 @@
   in {
     packages = forEachSystem (system: let
       pkgs = import nixpkgs {inherit system;};
-    in {
       tg_owt = pkgs.callPackage ./default.nix {};
+    in {
+      inherit tg_owt;
+      default = tg_owt;
     });
   };
 }
