@@ -13,14 +13,14 @@
   openh264,
   crc32c,
   libvpx,
-  libX11,
-  libXtst,
-  libXcomposite,
-  libXdamage,
-  libXext,
-  libXrender,
-  libXrandr,
-  libXi,
+  libx11,
+  libxtst,
+  libxcomposite,
+  libxdamage,
+  libxext,
+  libxrender,
+  libxrandr,
+  libxi,
   glib,
   abseil-cpp,
   pipewire,
@@ -30,17 +30,21 @@
   apple-sdk_15,
   unstableGitUpdater,
 }:
+
 stdenv.mkDerivation {
   pname = "tg_owt";
-  version = "0-unstable-2026-03-09";
+  version = "0-unstable-2026-04-09";
 
   src = fetchFromGitHub {
     owner = "desktop-app";
     repo = "tg_owt";
-    rev = "26068e29bfa8d74a9dc9c8f7f94172fafbc262b8";
-    hash = "sha256-/9uJMm54LC9ZeDwmursdyGeR81vBVTpjGdRUTOX0gV0=";
+    rev = "89df288dd6ba5b2ec95b3c5eaf1e7e0c3a870fc4";
+    hash = "sha256-wdO3AACCEN3IDYWt5a+f7zrcPFoqz+c7vLpo6LZk29w=";
     fetchSubmodules = true;
   };
+
+  patches = [
+  ];
 
   postPatch = lib.optionalString stdenv.hostPlatform.isLinux ''
     substituteInPlace src/modules/desktop_capture/linux/wayland/egl_dmabuf.cc \
@@ -62,43 +66,42 @@ stdenv.mkDerivation {
     python3
   ];
 
-  propagatedBuildInputs =
-    [
-      libjpeg
-      openssl
-      libopus
-      ffmpeg_6
-      openh264
-      crc32c
-      libvpx
-      abseil-cpp
-    ]
-    ++ lib.optionals stdenv.hostPlatform.isLinux [
-      libX11
-      libXtst
-      libXcomposite
-      libXdamage
-      libXext
-      libXrender
-      libXrandr
-      libXi
-      glib
-      pipewire
-      libgbm
-      libdrm
-      libGL
-    ]
-    ++ lib.optionals stdenv.hostPlatform.isDarwin [
-      apple-sdk_15
-    ];
+  propagatedBuildInputs = [
+    libjpeg
+    openssl
+    libopus
+    ffmpeg_6
+    openh264
+    crc32c
+    libvpx
+    abseil-cpp
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isLinux [
+    libx11
+    libxtst
+    libxcomposite
+    libxdamage
+    libxext
+    libxrender
+    libxrandr
+    libxi
+    glib
+    pipewire
+    libgbm
+    libdrm
+    libGL
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isDarwin [
+    apple-sdk_15
+  ];
 
-  passthru.updateScript = unstableGitUpdater {};
+  passthru.updateScript = unstableGitUpdater { };
 
   meta = {
     description = "Fork of Google's webrtc library for telegram-desktop";
     homepage = "https://github.com/desktop-app/tg_owt";
     license = lib.licenses.bsd3;
-    maintainers = with lib.maintainers; [oxalica];
+    maintainers = with lib.maintainers; [ oxalica ];
     platforms = lib.platforms.linux ++ lib.platforms.darwin;
   };
 }
