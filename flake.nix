@@ -2,11 +2,11 @@
   nixConfig = {
     extra-substituters = [
       "https://cache.garnix.io"
-      "https://tg-owt.cachix.org"
+      "https://ayugram-desktop.cachix.org"
     ];
     extra-trusted-public-keys = [
       "cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g="
-      "tg-owt.cachix.org-1:lp0BukIhSK3EIyLcDhDZ5zABgT48nmNp6t4SnZ0wr8w="
+      "ayugram-desktop.cachix.org-1:lp0BukIhSK3EIyLcDhDZ5zABgT48nmNp6t4SnZ0wr8w="
     ];
   };
 
