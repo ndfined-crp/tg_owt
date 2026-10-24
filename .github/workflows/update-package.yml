@@ -42,6 +42,10 @@ jobs:
         with:
           nix_path: nixpkgs=channel:nixos-unstable
 
+      - name: "Update flake.lock"
+        if: steps.check.outputs.update == 'true'
+        uses: "./.github/actions/update-flake-lock"
+
       - name: "Update package"
         if: steps.check.outputs.update == 'true'
         env:
@@ -59,14 +63,26 @@ jobs:
         run: |-
           echo "value=$(nix eval --raw .#tg_owt.version)" >> "$GITHUB_OUTPUT"
 
+      - name: "Create app token"
+        if: steps.check.outputs.update == 'true'
+        id: "app-token"
+        uses: "./.github/actions/create-app-token"
+        with:
+          client-id: "${{ secrets.APP_CLIENT_ID }}"
+          private-key: "${{ secrets.APP_PRIVATE_KEY }}"
+
+      # github-actions[bot] PRs need manual workflow approval, an app token does not
       - name: "Create pull request"
         if: steps.check.outputs.update == 'true'
         id: "pr"
         uses: "peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1" # v8.1.1
         with:
+          token: "${{ steps.app-token.outputs.token }}"
           branch: "update-tg_owt"
           delete-branch: true
-          add-paths: "default.nix"
+          add-paths: |
+            default.nix
+            flake.lock
           commit-message: "tg_owt: ${{ steps.check.outputs.current-version }} -> ${{ steps.version.outputs.value }}"
           title: "tg_owt: ${{ steps.check.outputs.current-version }} -> ${{ steps.version.outputs.value }}"
           body: |-
@@ -81,4 +97,4 @@ jobs:
             --auto \
             --squash
         env:
-          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+          GITHUB_TOKEN: "${{ steps.app-token.outputs.token }}"
