@@ -83,8 +83,8 @@ jobs:
           add-paths: |
             default.nix
             flake.lock
-          commit-message: "tg_owt: ${{ steps.check.outputs.current-version }} -> ${{ steps.version.outputs.value }}"
-          title: "tg_owt: ${{ steps.check.outputs.current-version }} -> ${{ steps.version.outputs.value }}"
+          commit-message: "feat: ${{ steps.check.outputs.current-version }}->${{ steps.version.outputs.value }}"
+          title: "feat: ${{ steps.check.outputs.current-version }}->${{ steps.version.outputs.value }}"
           body: |-
             Automated update of `tg_owt` to [`${{ steps.check.outputs.rev }}`](https://github.com/desktop-app/tg_owt/commit/${{ steps.check.outputs.rev }}).
 
