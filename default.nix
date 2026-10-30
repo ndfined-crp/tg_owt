@@ -38,8 +38,8 @@ stdenv.mkDerivation {
   src = fetchFromGitHub {
     owner = "desktop-app";
     repo = "tg_owt";
-    rev = "49ceed3985d8626b3a24bdb14d9c593a115cc6e8";
-    hash = "sha256-deV1Q5sTkK13wtbClnlYx2MSov5qnD0AHkOSrYpSrbM=";
+    rev = "020feec5c040fdae2cf752c2c2be62ddde7c236d";
+    hash = "sha256-8flLg97e24E+YBBOBZfrb5+wv7dqY2QdENqvC3ShCIo=";
     fetchSubmodules = true;
   };
 
