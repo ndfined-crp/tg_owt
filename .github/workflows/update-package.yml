@@ -45,6 +45,7 @@ jobs:
         if: steps.check.outputs.update == 'true'
         uses: "./.github/actions/update-flake-lock"
 
+      # TODO: fix it
       - name: "Update package"
         if: steps.check.outputs.update == 'true'
         env:
