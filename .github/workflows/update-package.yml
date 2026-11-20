@@ -41,6 +41,10 @@ jobs:
         with:
           nix_path: nixpkgs=channel:nixos-unstable
 
+      - name: "Materialise flake source"
+        if: steps.check.outputs.update == 'true'
+        run: nix flake prefetch . --json > /dev/null
+
       - name: "Update flake.lock"
         if: steps.check.outputs.update == 'true'
         uses: "./.github/actions/update-flake-lock"
