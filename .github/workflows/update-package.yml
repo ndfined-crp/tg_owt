@@ -23,17 +23,21 @@ jobs:
           latest="$(gh api "repos/desktop-app/tg_owt/commits/master" --jq '.sha')"
           current="$(awk -F'"' '/rev = / {print $2; exit}' default.nix)"
           current_version="$(awk -F'"' '/version = / {print $2; exit}' default.nix)"
+          commit_date="$(gh api "repos/desktop-app/tg_owt/commits/${latest}" --jq '.commit.committer.date' | cut -dT -f1)"
 
           echo "Current rev: $current"
           echo "Latest rev: $latest"
+          echo "Commit date: $commit_date"
+
           echo "current-version=$current_version" >> "$GITHUB_OUTPUT"
+          echo "rev=$latest" >> "$GITHUB_OUTPUT"
+          echo "date=$commit_date" >> "$GITHUB_OUTPUT"
 
           if [ "$latest" = "$current" ]; then
             echo "update=false" >> "$GITHUB_OUTPUT"
           else
             echo "update=true" >> "$GITHUB_OUTPUT"
           fi
-          echo "rev=$latest" >> "$GITHUB_OUTPUT"
 
       - name: "Install Nix"
         if: steps.check.outputs.update == 'true'
@@ -49,19 +53,30 @@ jobs:
         if: steps.check.outputs.update == 'true'
         env:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-        run: |-
-          nix run nixpkgs#nix-update -- \
-            --flake \
-            --version=branch \
-            --override-filename default.nix \
-            tg_owt
+        run: |
+          set -euo pipefail
+          latest="${{ steps.check.outputs.rev }}"
+          commit_date="${{ steps.check.outputs.date }}"
+
+          hash="$(nix run nixpkgs#nix-prefetch-github -- desktop-app tg_owt --rev "${latest}" --fetch-submodules --json | jq -r .hash)"
+
+          sed -i "s|rev = \".*\";|rev = \"${latest}\";|" default.nix
+          sed -i "s|hash = \".*\";|hash = \"${hash}\";|" default.nix
+          sed -i "s|version = \".*\";|version = \"0-unstable-${commit_date}\";|" default.nix
+
+          echo "Updated to ${latest} (${commit_date}), hash=${hash}"
+
+      - name: "Verify build"
+        if: steps.check.outputs.update == 'true'
+        run: nix build
 
       - name: "Read package version"
         if: steps.check.outputs.update == 'true'
         id: "version"
-        run: |-
+        run: |
           echo "value=$(nix eval --raw .#tg_owt.version)" >> "$GITHUB_OUTPUT"
 
+      # github-actions[bot] PRs need manual workflow approval, an app token does not
       - name: "Create app token"
         if: steps.check.outputs.update == 'true'
         id: "app-token"
@@ -70,7 +85,6 @@ jobs:
           client-id: "${{ secrets.APP_CLIENT_ID }}"
           private-key: "${{ secrets.APP_PRIVATE_KEY }}"
 
-      # github-actions[bot] PRs need manual workflow approval, an app token does not
       - name: "Create pull request"
         if: steps.check.outputs.update == 'true'
         id: "pr"
@@ -84,10 +98,10 @@ jobs:
             flake.lock
           commit-message: "feat: ${{ steps.check.outputs.current-version }}->${{ steps.version.outputs.value }}"
           title: "feat: ${{ steps.check.outputs.current-version }}->${{ steps.version.outputs.value }}"
-          body: |-
+          body: |
             Automated update of `tg_owt` to [`${{ steps.check.outputs.rev }}`](https://github.com/desktop-app/tg_owt/commit/${{ steps.check.outputs.rev }}).
 
-            Version and source hash were bumped with [nix-update](https://github.com/Mic92/nix-update).
+            Version and source hash were bumped with `nix-prefetch-github`.
 
       - name: "Enable auto-merge"
         if: "steps.pr.outputs.pull-request-number != ''"

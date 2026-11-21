@@ -8,7 +8,7 @@
   outputs = inputs: let
     inherit (inputs) nixpkgs;
 
-    systems = ["x86_64-linux" "aarch64-linux" "x86_64-darwin" "aarch64-darwin"];
+    systems = ["x86_64-linux" "aarch64-linux" "aarch64-darwin"];
     forEachSystem = nixpkgs.lib.genAttrs systems;
   in {
     packages = forEachSystem (system: let

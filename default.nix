@@ -102,6 +102,6 @@ stdenv.mkDerivation {
     homepage = "https://github.com/desktop-app/tg_owt";
     license = lib.licenses.bsd3;
     maintainers = with lib.maintainers; [ oxalica ];
-    platforms = lib.platforms.linux ++ lib.platforms.darwin;
+    platforms = lib.platforms.linux ++ ["aarch64-darwin"];
   };
 }
